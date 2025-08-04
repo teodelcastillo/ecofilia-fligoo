@@ -41,12 +41,14 @@ class Document(models.Model):
         if not self.name and not self.slug:
             name = os.path.basename(self.file.name)
             name = os.path.splitext(name)[0] 
-            self.name = name
-            base_slug = slugify(name)
+            self.name = name[:255]
+            base_slug = slugify(name[:50])
             slug = base_slug
             counter = 1
             while Document.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
+                s_counter = str(counter)
+                slug = base_slug[:49-len(s_counter)]
+                slug = f"{base_slug}-"+ s_counter
                 counter += 1
             self.slug = slug
 

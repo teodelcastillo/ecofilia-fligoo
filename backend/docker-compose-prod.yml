@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: backend:latest
+    container_name: backend
+    command: bash -c "sleep 4 && sh ./docker/entrypoint-prod.sh"
+    env_file:
+      - ./docker/.env
+    # For production, avoid bind-mounting the whole project.
+    # volumes:
+    #   - .:/code
+    expose:
+      - "8000"            # internal-only; nginx will proxy to this
+    restart: unless-stopped
+    networks:
+      - app-network
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+    #   interval: 15s
+    #   timeout: 3s
+    #   retries: 5
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    env_file:
+      - ./docker/.env
+    ports:
+      - "80:80"           # open this in your EC2 security group
+      # - "443:443"       # add if you configure TLS
+    depends_on:
+      - backend
+    command: /bin/bash -c "sleep 5 && nginx -g 'daemon off;'"
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./main/django-static:/opt/app/django-static
+      - ./media:/opt/app/media
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

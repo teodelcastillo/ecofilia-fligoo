@@ -20,7 +20,6 @@ class RAGQueryView(APIView):
 
         
         user = request.user
-        breakpoint()
         if user.is_staff:
             qs = SmartChunk.objects.all()
         else:

@@ -124,6 +124,8 @@ venv.bak/
 # mkdocs documentation
 /site
 **/documents/*
+
+**/django-static/
 # mypy
 .mypy_cache/
 .dmypy.json

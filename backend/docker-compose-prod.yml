@@ -10,9 +10,8 @@ services:
     command: bash -c "sleep 4 && sh ./docker/entrypoint-prod.sh"
     env_file:
       - ./docker/.env
-    # For production, avoid bind-mounting the whole project.
-    # volumes:
-    #   - .:/code
+    volumes:
+      - .:/code
     expose:
       - "8000"            # internal-only; nginx will proxy to this
     restart: unless-stopped
